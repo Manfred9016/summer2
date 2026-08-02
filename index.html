@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Internet Culture Interactive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* VILLAINS Neon Theme */
+            --bg-dark: #0b0b12;
+            --panel-bg: #161625;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ea;
+            --neon-green: #39ff14;
+            --neon-red: #ff073a;
+            --text-main: #ffffff;
+            --text-muted: #a0aab5;
+            --correct: #39ff14;
+            --incorrect: #ff073a;
+            --radius-lg: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+              radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.05), transparent 25%),
+              radial-gradient(circle at 85% 30%, rgba(255, 0, 234, 0.05), transparent 25%);
+        }
+
+        /* Particles Background */
+        #particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
+        .header-banner {
+            background-color: rgba(11, 11, 18, 0.9);
+            border-bottom: 2px solid var(--neon-pink);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(255, 0, 234, 0.3);
+            z-index: 10;
+        }
+
+        .header-banner h1 {
+            margin: 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-pink);
+        }
+
+        .stats {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        #app-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Cards & Grids */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .level-card {
+            background: var(--panel-bg);
+            border: 2px solid #333;
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            opacity: 0.9;
+        }
+
+        .level-card:hover {
+            opacity: 1;
+            transform: scale(1.05) translateY(-5px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.4), inset 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        .level-card h2, .level-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
+            margin-top: 1rem;
+            text-transform: uppercase;
+        }
+
+        .level-image {
+            width: 100%;
+            height: auto; /* Allows the image to display its natural height */
+            max-height: 280px; /* Prevents extremely tall images from taking over the screen */
+            object-fit: contain; /* Ensures 100% of the image is visible without cropping */
+            border-radius: 8px;
+            border: 2px solid var(--neon-pink);
+            background-color: rgba(0, 0, 0, 0.4); /* Fills any leftover space with a dark tint */
+        }
+
+        /* Buttons (VILLAINS Style) */
+        .action-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 15px;
+            background: rgba(22, 22, 37, 0.8);
+            border: 2px solid #444;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            color: white;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            border-color: var(--neon-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 243, 255, 0.3);
+            color: var(--neon-blue);
+        }
+        
+        .action-btn:hover:not(:disabled)::before { left: 100%; }
+        .action-btn:active:not(:disabled) { transform: translateY(1px); }
+
+        .btn-correct { background-color: rgba(57, 255, 20, 0.2) !important; border-color: var(--neon-green) !important; box-shadow: 0 0 15px var(--neon-green) !important; color: var(--neon-green) !important; }
+        .btn-wrong { background-color: rgba(255, 7, 58, 0.2) !important; border-color: var(--neon-red) !important; box-shadow: 0 0 15px var(--neon-red) !important; color: var(--neon-red) !important; }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .nav-buttons { flex-direction: column; gap: 15px; }
+            .nav-buttons .action-btn { width: 100% !important; margin-top: 0; }
+        }
+
+        /* Containers & Reading */
+        .reading-container {
+            background: var(--panel-bg);
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            border: 2px solid #333;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .reading-container h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 243, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid var(--neon-blue);
+        }
+
+        .cloud-word {
+            background: var(--bg-dark);
+            color: var(--neon-blue);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            border: 1px solid var(--neon-blue);
+            transition: all 0.3s;
+        }
+
+        .cloud-word.found {
+            background: rgba(57, 255, 20, 0.2);
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+            text-decoration: line-through;
+        }
+
+        .interactive-word {
+            cursor: pointer;
+            padding: 0 2px;
+            border-bottom: 1px dashed var(--neon-blue);
+            transition: background 0.2s;
+        }
+
+        .interactive-word.revealed {
+            background: var(--neon-blue);
+            color: #000;
+            font-weight: bold;
+        }
+
+        hr { border: 0; height: 1px; background: #333; margin: 2rem 0; }
+
+        /* Inputs */
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--neon-blue);
+            margin-top: 1rem;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        /* Flashcards */
+        .flashcard-scene {
+            width: 100%;
+            height: 300px;
+            perspective: 1000px;
+            margin: 2rem 0;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flashcard.is-flipped { transform: rotateY(180deg); }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-pink);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 0 20px rgba(255, 0, 234, 0.2);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-pink);
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: var(--bg-dark);
+            color: var(--neon-blue);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        /* Sentence Builder */
+        .sentence-dropzone, .word-bank {
+            min-height: 80px;
+            border: 2px dashed #444;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--bg-dark);
+        }
+        .draggable-word {
+            padding: 10px 15px;
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        .draggable-word:hover {
+            background: rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.3s ease-out forwards; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+        .shake { animation: shake 0.4s ease-in-out; }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    
+    <header class="header-banner">
+        <h1>INTERNET CULTURE</h1>
+        <div class="stats">
+            <span id="xp-counter">⭐ 0 XP</span>
+        </div>
+    </header>
+    
+    <main id="app-container">
+        <!-- Content injected dynamically via JavaScript -->
+    </main>
+
+    <script>
+        // --- BACKGROUND PARTICLES ---
+        function initParticles() {
+            const canvas = document.getElementById('particles');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particlesArray = [];
+            const colors = ['#00f3ff', '#ff00ea', '#ffffff'];
+
+            for (let i = 0; i < 50; i++) {
+                particlesArray.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speedY: Math.random() * 1 - 0.5,
+                    speedX: Math.random() * 1 - 0.5,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particlesArray.length; i++) {
+                    let p = particlesArray[i];
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('particles');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // --- DATA LAYER ---
+        const memesDB = [
+            { name: "Skibidi Toilet", img: "Images\\Skibidi Toilet.jpg", hint: "A surreal, chaotic video series about toilets with human heads." },
+            { name: "Only in Ohio", img: "Images\\Only in Ohio.png", hint: "A joke used to describe bizarre or completely wild situations." },
+            { name: "Rizz", img: "Images\\Rizz.jpg", hint: "A slang term meaning having charisma or charm." },
+            { name: "Gyatt", img: "Images\\Gyatt.png", hint: "A term used as an exclamation of surprise." },
+            { name: "Popcorn Brain", img: "Images\\Popcorn Brain.png", hint: "When the brain expects information in tiny, rapid bursts, making it hard to focus on slow tasks." },
+            { name: "Doomscrolling", img: "Images\\Doomscrolling.jpg", hint: "Endlessly scrolling through negative or mindless news and videos." },
+            { name: "Brain Rot", img: "Images\\Brain Rot.jpg", hint: "The feeling of being mentally tired or foggy after spending too much time online." },
+            { name: "Fanum Tax", img: "Images\\Fanum Tax.jpg", hint: "A term used among young people to bond; if you don't know it, you might feel FOMO." },
+            { name: "67", img: "Images\\67.jpg", hint: "A meme that became popular on TikTok, often used in chaotic or absurd contexts." },
+            { name: "Italian Brainrot", img: "Images\\Italian Brainrot.jpg", hint: " It is a series of internet memes that emerged in early 2025 characterized by AI-generated absurd and surrealist images of creatures" },
+            { name: "Scuba dance", img: "Images\\Scuba dance.jpg", hint: "A viral dance trend that became popular on TikTok, often performed in scuba gear." },
+            { name: "Sigma boy", img: "Images\\Sigma boy.jpg", hint: "A meme character representing a lone, independent, and self-reliant individual, often contrasted with 'alpha' and 'beta' stereotypes." },
+            { name: "Chad", img: "Images\\Chad.jpg", hint: "A meme character representing an idealized, confident, and attractive male, often used in contrast to 'virgin' or 'beta' stereotypes." },
+            { name: "Taiwan No.1", img: "Images\\Taiwan No.1.jpg", hint: "A meme phrase expressing pride in Taiwan, often used humorously or ironically online." },
+            { name: "Korean Fish", img: "Images\\Korean Fish.jpg", hint: "A meme about a Taiwanese politician" },
+            { name: "Absolute Cinema", img: "Images\\Absolute Cinema.jpg", hint: "A meme phrase used to describe something that is so absurd or over-the-top that it feels like a scene from a movie." },
+            { name: "Alter Ego", img: "Images\\Alter Ego.jpg", hint: "A meme concept where a person or character has a completely different personality or identity, often used in humorous or exaggerated contexts." },
+            { name: "Excuse me Sir" , img: "Images\\Excuse me Sir.jpg", hint: "A meme phrase used to express disbelief or confusion, often in response to something absurd or unexpected." },
+            { name: "Low cortisol", img: "Images\\Low cortisol.jpg", hint: "A meme phrase used to describe someone who is calm, relaxed, or unbothered, often in contrast to high-stress situations." },
+            { name: "All roads lead to Rome", img: "Images\\All roads lead to Rome.jpg", hint: "A meme phrase used to suggest that different methods or paths can lead to the same outcome, often used humorously in various contexts." },
+            { name: "SYBAU", img: "Images\\SYBAU.jpg", hint: "A meme phrase that stands for 'See You Back At University,' often used humorously to refer to returning to school or academic life." },
+            { name: "Super Idol的笑容", img: "Images\\Super Idol的笑容.jpg", hint: "A meme phrase from a popular Chinese song, often used humorously or ironically online." },
+            { name: "煙火阿嬤", img: "Images\\煙火阿嬤.jpg", hint: "A meme about a grandmother who enjoys watching fireworks, often used to express nostalgia or humor." }
+            
+
+
+        ];
+
+        const courseData = {
+          levels: [
+            {
+              id: "basic",
+              title: "Basic Brain Rot",
+              description: "The History and Science of Internet Culture",
+              image: "Images/Basic.jpg",
+              reading: [
+                { country: "A New Kind of Internet Culture", text: "In late 2024, the Oxford University Press named a strange, two-word phrase as its Word of the Year: \"Brain rot\". By the time we reached 2026, the term had become a permanent part of the global vocabulary, used by everyone from middle school students in Taiwan to university professors in London. But what exactly is brain rot? To some, it is just a funny way to describe silly videos. To others, it is a serious warning about how we use our phones and how technology might be changing our minds." },
+                { country: "What is Brain Rot?", text: "\"Brain rot\" (often written as one word: brainrot) is a slang term used to describe the feeling of being \"mentally tired\" or \"foggy\" after spending too much time online. It specifically refers to the consumption of low-quality, repetitive, and absurd content. For the younger generations, known as Generation Z and Generation Alpha, brain rot is also a specific style of internet humor. This style is often chaotic, fast-paced, and filled with strange words that make no sense to older people. Famous examples include the \"Skibidi Toilet\" series, the \"Only in Ohio\" memes, and terms like \"Rizz\" (meaning charisma) or \"Gyatt\". While these videos are often watched for entertainment, the term \"brain rot\" ironically suggests that watching them is so useless that it feels like your brain is actually rotting away." },
+                { country: "The History: From a Cabin to a Smartphone", text: "Most people think \"brain rot\" is a modern invention of the TikTok era, but the term is actually over 170 years old. The first recorded use of the phrase was in 1854 by the American writer Henry David Thoreau in his famous book, Walden. Thoreau lived in a small cabin in the woods to find a simpler life, and he worried that society was becoming too focused on simple, trivial ideas. He asked if anyone would try to \"cure the brain-rot\" that he saw spreading through the minds of people who didn't think deeply. The term reappeared on Twitter in 2007 to describe reality TV shows and video games. However, it didn't truly explode in popularity until the COVID-19 lockdowns of 2020. With the world stuck at home, millions of people began \"doomscrolling\"—endlessly scrolling through negative or mindless news and videos. Between 2023 and 2024, the use of the term increased by 230%, leading to its crowning as the Word of the Year." },
+                { country: "Why Did It Become So Famous?", text: "Brain rot content became a global phenomenon because of three main factors: technology, social bonding, and the \"Fear of Missing Out\" (FOMO). 1. The Algorithm and the Infinite Scroll: Apps like TikTok and Instagram use \"infinite scrolling,\" which means the content never ends. The computer programs (algorithms) are designed to learn exactly what you like and keep showing you more of it, making it very difficult to put the phone down. 2. Dopamine Hits: Every time you see a new, funny video, your brain releases a small chemical called dopamine. This is the brain's \"reward\" chemical. Short-form videos provide these rewards every 15 to 30 seconds, creating an addictive loop where your brain constantly craves the next video. 3. Social Connection: For many young people, using \"brain rot\" slang is a way to feel included in a group. If you don't know what \"Skibidi\" or \"Fanum Tax\" means, you might feel left out of the conversation. This \"FOMO\" drives people to stay online for hours to stay updated on the latest weird trends." },
+                { country: "The Potential Damages to the Brain", text: "While \"brain rot\" is often used as a joke, doctors and scientists are concerned about the real cognitive effects of overexposure to this content. Attention Span Decline: Constant exposure to fast-switching videos trains the brain to expect information in tiny, rapid bursts. This is sometimes called \"TikTok Brain\" or \"Popcorn Brain.\" It makes it much harder to focus on \"slow\" tasks like reading a book, studying for a test, or sitting through a long lecture. Weakening the Prefrontal Cortex: This is the part of the brain responsible for decision-making, planning, and impulse control. Research suggests that constant digital overstimulation can weaken this area, making it harder for people (especially children) to control their urges or plan for the future. Dopamine Desensitization: When the brain is flooded with dopamine from screens all day, the brain's receptors become less sensitive. This means you need more and more stimulation just to feel \"normal.\" Activities that used to be fun, like walking in nature or talking with friends, might start to feel boring in comparison. Mental Fatigue and Fog: Many students report feeling \"drained\" or \"foggy\" after hours of scrolling. This mental fatigue can lead to lower grades, irritability when away from the phone, and even a higher risk of anxiety or depression." },
+                { country: "Is the Damage Permanent?", text: "The good news is that the human brain is very adaptable, which is a concept known as neuroplasticity. This means the effects of \"brain rot\" are likely not permanent. By setting time limits, choosing \"long-form\" content like books or podcasts, and taking breaks to interact with the real world, the brain can \"re-train\" itself to focus and find joy in slower, more meaningful activities." }
+              ],
+              vocabulary: [
+                { word: "brain rot", chinese: "腦霧/網路成癮", icon: "🧠" },
+                { word: "foggy", chinese: "模糊的/困惑的", icon: "🌫️" },
+                { word: "doomscrolling", chinese: "末日滑手機", icon: "📱" },
+                { word: "infinite", chinese: "無限的", icon: "♾️" },
+                { word: "algorithm", chinese: "演算法", icon: "💻" },
+                { word: "neuroplasticity", chinese: "神經可塑性", icon: "🌱" }
+              ],
+              questions: [
+                { type: "mc", q: "1. Which of the following best describes the historical origin of the term 'brain rot'?", options: ["Invented by TikTok users in 2024", "Used by a writer in 1854 to criticize simple thinking", "A medical term used by doctors in 2007", "Created by the creators of Skibidi Toilet"], answer: 1 },
+                { type: "mc", q: "2. According to the text, why is 'infinite scrolling' dangerous for our focus?", options: ["It makes the internet too expensive", "It shows us news that is not true", "It creates a loop of constant rewards that makes it hard to stop watching", "It prevents the brain from releasing dopamine"], answer: 2 },
+                { type: "fill", q: "3. The brain's ability to change and adapt, meaning the effects of brain rot are not permanent, is known as ___________________.", answer: "neuroplasticity" },
+                { type: "fill", q: "4. How does \"brain rot\" content function as a social tool for teenagers?", answer: "It helps them feel included in a group and avoid the fear of missing out (FOMO)." },
+                { type: "fill", q: "Explain the concept of \"neuroplasticity\" and why it is important for someone who feels they have \"brain rot.\"", answer: "Neuroplasticity is the brain's ability to change and adapt over time. It is important for someone experiencing 'brain rot' because it means that the negative effects of excessive screen time and digital overstimulation are not permanent. By engaging in activities that promote focus, learning, and real-world interaction, the brain can rewire itself to improve cognitive function and mental health." }
+              ],
+              unscrambleWords: ["foggy", "infinite", "algorithm", "scrolling", "adaptable"],
+              sentences: [
+                "The term was first used in 1854 by the American writer Henry David Thoreau.",
+                "Apps like TikTok use infinite scrolling so the content never ends.",
+                "Neuroplasticity means that the effects of brain rot are not permanent."
+              ]
+            },
+            {
+              id: "intermediate",
+              title: "Advanced Slang",
+              description: "How Digital Culture is Reshaping Our Minds",
+              image: "Images/Intermediate.jpg",
+              reading: [
+                { country: "A New Kind of Internet Culture", text: "In late 2024, the famous Oxford University Press chose a very strange, two-word phrase as its official \"Word of the Year\": \"Brain rot\". By the year 2026, this term had completely evolved from an obscure internet joke into a permanent part of our global vocabulary. Today, it is used by almost everyone, from middle school students navigating social media in Taiwan to university professors analyzing language changes in London. But what exactly is brain rot? To some people, it is just a funny, casual way to describe the silly, chaotic, and crazy videos we see on our feeds. To other people, it serves as a serious, urgent warning about how we use our smartphones every single day. It forces us to ask deep questions about how modern technology might be changing our minds, our habits, and how we think about the world around us." },
+                { country: "What is Brain Rot?", text: "At its core, \"brain rot\" is a slang term. People use it to describe that very specific feeling of being \"mentally tired,\" exhausted, or \"foggy\" after spending far too much time scrolling on the internet. It does not just mean using a computer for homework; it specifically refers to watching low-quality, highly repetitive, and completely absurd digital content for hours at a time. For younger generations, such as Generation Z and Generation Alpha, brain rot has also become a unique style of internet humor. This style of content is fast-paced, loud, and filled with strange words. In fact, these phrases usually make absolutely no sense to older people like parents or teachers. Some of the most famous examples that dominate the internet include: The \"Skibidi Toilet\" series, The \"Only in Ohio\" memes, and slang terms like \"Rizz\" or \"Gyatt\". While teenagers and kids watch these short clips for fun and entertainment, the term \"brain rot\" ironically suggests that watching them is totally useless. It feels like your brain is actually rotting away while you sit and watch them." },
+                { country: "Why Did It Become So Famous?", text: "Brain rot content became a massive global phenomenon because of three main reasons: technology, social bonding, and FOMO. 1. The Algorithm and the Infinite Scroll: Apps like TikTok and Instagram use \"infinite scrolling,\" meaning the videos automatically play and the page never ends. The computer programs behind these apps, called algorithms, watch your behavior to learn exactly what you like. By instantly showing you more of your favorite topics, they create a customized feed that makes it incredibly difficult to put your phone down. 2. Dopamine Hits: Every time you see a funny or surprising video, your brain releases a tiny amount of a \"reward\" chemical called dopamine, making you feel happy for a brief moment. Short-form videos are powerful because they deliver these chemical rewards every 15 to 30 seconds. This quickly creates an addictive loop where your brain constantly craves the next quick laugh, keeping you trapped on the app. 3. Social Connection and FOMO: For many students, using \"brain rot\" slang is a way to feel included. Inside school hallways and group chats, these memes form a shared language. If you don't know what words like \"Skibidi\" or \"Fanum Tax\" mean, you might feel left out. This powerful feeling is called \"FOMO\" (Fear of Missing Out), and it forces people to stay online for hours just to keep up with the latest trends." },
+                { country: "The Potential Damages to the Brain", text: "Although most people use the word \"brain rot\" as a harmless joke, doctors, psychologists, and scientists are very worried about the real cognitive effects it has on our health. Attention Span Decline: Watching fast, chaotic videos trains the brain to expect information in tiny, rapid bursts, a problem often called \"TikTok Brain\" or \"Popcorn Brain.\" Because the brain gets used to constant excitement, students find it much harder to focus on \"slow\" everyday tasks like reading a textbook, studying for an exam, or sitting through a long school lecture. Weakening the Prefrontal Cortex: The prefrontal cortex is the front part of the brain responsible for decision-making, planning, and impulse control. Research suggests that constant digital overstimulation can weaken this critical area. When this happens, it becomes much harder for children and teenagers to control their actions, resist distractions, or stay organized. Dopamine Desensitization: When bright screens flood the brain with dopamine all day, the brain’s natural receptors become less sensitive. Because your brain gets used to this high stimulation, you need more and more screen time just to feel normal. As a result, fun real-world activities like walking in nature, playing sports, or talking with friends face-to-face start to feel incredibly boring. Mental Fatigue and Fog: Many students report feeling completely \"drained,\" exhausted, or \"foggy\" after scrolling through social media for hours. This deep mental fatigue can cause lower school grades because the brain cannot retain information. It also leads to bad moods and irritability when you are forced to step away from your phone, and it can even create a much higher risk of long-term anxiety or depression." },
+                { country: "Is the Damage Permanent?", text: "Thankfully, the good news is that the human brain is incredibly flexible, powerful, and adaptable. This amazing scientific concept is known as neuroplasticity. Neuroplasticity means that the negative side effects of \"brain rot\" are not permanent. Your brain has the ability to heal, change, and grow stronger over time. By setting daily time limits on your apps, choosing \"long-form\" content like reading physical books or listening to educational podcasts, and spending more time interacting with the real world, the brain can slowly \"re-train\" itself. With patience and better habits, you can teach your mind to focus deeply once again and find true, lasting joy in slower, more meaningful activities." }
+              ],
+              vocabulary: [
+                { word: "absurd", chinese: "荒謬的", icon: "🤪" },
+                { word: "charisma", chinese: "魅力 (Rizz)", icon: "✨" },
+                { word: "dopamine", chinese: "多巴胺", icon: "⚡" },
+                { word: "prefrontal cortex", chinese: "前額葉皮層", icon: "🧩" },
+                { word: "fatigue", chinese: "疲勞", icon: "🥱" }
+              ],
+              questions: [
+                { type: "mc", q: "1. Which organization chose 'Brain rot' as its official Word of the Year in late 2024?", options: ["London University Press", "Taiwan Social Media Association", "Oxford University Press", "The Global Vocabulary Council"], answer: 2 },
+                { type: "mc", q: "2. According to the text, what does the slang word 'Rizz' mean?", options: ["An exclamation of surprise", "Having charisma or charm", "Feeling mentally tired and foggy", "A chaotic video series about toilets"], answer: 1 },
+                { type: "fill", q: "3. The part of the brain responsible for planning and impulse control is called the ___________________ ___________________.", answer: "prefrontal cortex" },
+                { type: "fill", q: "4.According to the article, what is the main difference between using a computer to complete your school homework and experiencing true 'brain rot'?", answer: "Using a computer for homework is productive, while 'brain rot' refers to consuming low-quality, repetitive, and absurd content for hours." },
+                { type: "fill", q: "5. Explain how 'infinite scrolling' and dopamine hits contribute to the addictive nature of brain rot content.", answer: "Infinite scrolling keeps users engaged by providing a never-ending stream of content, while dopamine hits reward the brain with small bursts of pleasure for each new video. Together, they create a cycle that makes it difficult to stop watching." }
+              ],
+              unscrambleWords: ["absurd", "dopamine", "fatigue", "charisma", "popcorn"],
+              sentences: [
+                "For younger generations brain rot has become a unique style of internet humor.",
+                "Using brain rot slang helps teenagers feel included and avoids FOMO.",
+                "Constant digital overstimulation can weaken the prefrontal cortex."
+              ]
+            }
+          ]
+        };
+
+        // --- APPLICATION LOGIC ---
+        const appContainer = document.getElementById('app-container');
+        let currentLevel = null;
+        let userXP = parseInt(localStorage.getItem('userXP')) || 0;
+        
+        let currentReadingIndex = 0; // Tracks the current page in the reading section
+        let currentQuestionIndex = 0;
+        let currentFlashcardIndex = 0;
+        let currentVocabUnscrambleIndex = 0;
+        let currentSentenceIndex = 0;
+        
+        let wordsToFind = [];
+
+        function init() {
+            initParticles();
+            updateXP(0);
+            renderHome();
+        }
+
+        function updateXP(amount) {
+            userXP += amount;
+            localStorage.setItem('userXP', userXP);
+            document.getElementById('xp-counter').textContent = `⭐ ${userXP} XP`;
+        }
+
+        function renderHome() {
+            appContainer.innerHTML = `
+                <div class="card-grid animate-pop">
+                    ${courseData.levels.map(level => `
+                        <div class="level-card" onclick="startLevel('${level.id}')">
+                            <img src="${level.image}" alt="${level.title}" class="level-image">
+                            <h2>${level.title}</h2>
+                            <p style="color: var(--text-muted);">${level.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function startLevel(levelId) {
+            currentLevel = courseData.levels.find(l => l.id === levelId);
+            renderMenu();
+        }
+
+        function renderMenu() {
+            appContainer.innerHTML = `
+                <button class="action-btn" style="width:auto; margin-bottom: 1rem;" onclick="renderHome()">← Back to Levels</button>
+                <h1 style="text-align:center; font-family:'Orbitron', sans-serif; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);">${currentLevel.title.toUpperCase()}</h1>
+                <div class="card-grid animate-pop">
+                    <div class="level-card" onclick="startReading()">
+                        <div style="font-size: 3rem;">📖</div>
+                        <h3>Reading Mission</h3>
+                    </div>
+                    <div class="level-card" onclick="startQuiz()">
+                        <div style="font-size: 3rem;">❓</div>
+                        <h3>Knowledge Check</h3>
+                    </div>
+                    <div class="level-card" onclick="startFlashcards()">
+                        <div style="font-size: 3rem;">🎴</div>
+                        <h3>Vocab Flashcards</h3>
+                    </div>
+                    <div class="level-card" onclick="startVocabUnscramble()">
+                        <div style="font-size: 3rem;">🔀</div>
+                        <h3>Unscramble Vocab</h3>
+                    </div>
+                    <div class="level-card" onclick="startSentenceUnscramble()">
+                        <div style="font-size: 3rem;">🧩</div>
+                        <h3>Sentence Builder</h3>
+                    </div>
+                    <div class="level-card" onclick="startMemeChallenge()">
+                        <div style="font-size: 3rem;">📱</div>
+                        <h3>Meme Guess</h3>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ACTIVITY 1: READING WITH PAGINATION ---
+        function startReading() {
+            currentReadingIndex = 0; // Reset page to the beginning every time they open it
+            renderReading();
+        }
+
+        function renderReading() {
+            wordsToFind = currentLevel.vocabulary.map(v => v.word.toLowerCase());
+            const cloudHTML = currentLevel.vocabulary.map(v => 
+                `<span class="cloud-word" id="cloud-${v.word.replace(/\s+/g, '-').toLowerCase()}">${v.word}</span>`
+            ).join('');
+
+            const isFirst = currentReadingIndex === 0;
+            const isLast = currentReadingIndex === currentLevel.reading.length - 1;
+            const currentPassage = currentLevel.reading[currentReadingIndex];
+
+            // Wrap vocabulary words with interactive spans, ignoring punctuation
+            const interactiveText = currentPassage.text.replace(/([a-zA-Z0-9-]+)/g, '<span class="interactive-word" onclick="checkWord(this)">$1</span>');
+
+            appContainer.innerHTML = `
+                <button class="action-btn" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); margin-bottom:1rem;">
+                        <span>Page ${currentReadingIndex + 1} of ${currentLevel.reading.length}</span>
+                    </div>
+
+                    <h2 style="margin-top:0; color: #fff;">Find the Vocabulary!</h2>
+                    <div class="word-cloud">
+                        ${cloudHTML}
+                    </div>
+                    
+                    <h2 style="color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink);">📍 ${currentPassage.country}</h2>
+                    <p style="font-size: 1.2rem; line-height: 1.8;">${interactiveText}</p>
+                    <hr>
+                    
+                    <div class="nav-buttons">
+                        <button class="action-btn" style="width:48%;" onclick="navigateReading(-1)" ${isFirst ? 'disabled style="opacity:0.5"' : ''}>Previous Page</button>
+                        ${isLast ? 
+                            `<button class="action-btn btn-correct" style="width:48%;" onclick="updateXP(20); startQuiz();">Complete & Continue to Quiz (+20 XP)</button>` : 
+                            `<button class="action-btn" style="width:48%;" onclick="navigateReading(1)">Next Page</button>`
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        function navigateReading(direction) {
+            currentReadingIndex += direction;
+            renderReading();
+        }
+
+        function checkWord(element) {
+            const clickedWord = element.innerText.toLowerCase();
+            if (wordsToFind.some(word => word.includes(clickedWord))) {
+                element.classList.add('revealed');
+                const matchedVocab = wordsToFind.find(word => word.includes(clickedWord));
+                const cloudEl = document.getElementById(`cloud-${matchedVocab.replace(/\s+/g, '-')}`);
+                if (cloudEl && !cloudEl.classList.contains('found')) {
+                    cloudEl.classList.add('found');
+                    updateXP(5);
+                }
+            } else {
+                element.classList.add('shake');
+                setTimeout(() => element.classList.remove('shake'), 400);
+            }
+        }
+
+        // --- ACTIVITY 2: QUIZ ---
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            renderQuiz();
+        }
+
+        function renderQuiz() {
+            const qData = currentLevel.questions[currentQuestionIndex];
+            const isLast = currentQuestionIndex === currentLevel.questions.length - 1;
+            const isFirst = currentQuestionIndex === 0;
+            let interactionHTML = '';
+            
+            if (qData.type === 'mc') {
+                interactionHTML = `
+                    <div id="mc-options" style="display:flex; flex-direction:column; gap:10px; margin-top: 2rem;">
+                        ${qData.options.map((opt, index) => `
+                            <button class="action-btn" style="text-align: left; text-transform:none;" 
+                            onclick="checkQuizAnswer(this, ${index}, ${qData.answer}, 'mc')">${opt}</button>
+                        `).join('')}
+                    </div>`;
+            } else if (qData.type === 'fill') {
+                interactionHTML = `
+                    <div style="margin-top: 2rem;">
+                        <input type="text" id="fill-input" placeholder="Type your answer here..." autocomplete="off">
+                        <button class="action-btn" style="margin-top:1rem;" onclick="checkQuizAnswer(document.getElementById('fill-input'), null, '${qData.answer}', 'fill')">Check Answer</button>
+                    </div>`;
+            }
+
+            appContainer.innerHTML = `
+                <button class="action-btn" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); margin-bottom:1rem;">
+                        <span>Question ${currentQuestionIndex + 1} of ${currentLevel.questions.length}</span>
+                    </div>
+                    <p style="font-size: 1.3rem; font-weight: bold; color: var(--neon-blue);">${qData.q}</p>
+                    ${interactionHTML}
+                    
+                    <div class="nav-buttons">
+                        <button class="action-btn" style="width:48%;" onclick="navigateQuiz(-1)" ${isFirst ? 'disabled style="opacity:0.5"' : ''}>Previous</button>
+                        <button class="action-btn" style="width:48%;" onclick="navigateQuiz(1)">${isLast ? 'Finish Quiz' : 'Next Question'}</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkQuizAnswer(element, selectedIndex, correctAnswer, type) {
+            if (type === 'mc') {
+                const allButtons = element.parentElement.querySelectorAll('button');
+                allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+                if (selectedIndex === correctAnswer) {
+                    element.classList.add('btn-correct');
+                    updateXP(10);
+                } else {
+                    element.classList.add('btn-wrong');
+                    element.classList.add('shake');
+                    allButtons[correctAnswer].classList.add('btn-correct');
+                }
+            } else if (type === 'fill') {
+                const userAnswer = element.value.trim().toLowerCase();
+                const actualAnswer = correctAnswer.toLowerCase();
+                if (userAnswer.length > 3 && actualAnswer.includes(userAnswer) || userAnswer === actualAnswer) {
+                    element.style.borderColor = 'var(--neon-green)';
+                    element.style.boxShadow = '0 0 15px var(--neon-green)';
+                    updateXP(15);
+                    alert("Correct!");
+                } else {
+                    element.style.borderColor = 'var(--neon-red)';
+                    element.classList.add('shake');
+                    setTimeout(() => element.classList.remove('shake'), 400);
+                    alert(`Not quite! Hint: ${correctAnswer}`);
+                }
+            }
+        }
+
+        function navigateQuiz(direction) {
+            currentQuestionIndex += direction;
+            if (currentQuestionIndex >= currentLevel.questions.length) {
+                alert("Quiz Completed! Great job.");
+                renderMenu();
+            } else {
+                renderQuiz();
+            }
+        }
+
+        // --- ACTIVITY 3: FLASHCARDS ---
+        function startFlashcards() {
+            currentFlashcardIndex = 0;
+            renderFlashcardUI();
+        }
+
+        function renderFlashcardUI() {
+            const vocab = currentLevel.vocabulary;
+            const currentCard = vocab[currentFlashcardIndex];
+            appContainer.innerHTML = `
+                <button class="action-btn" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop" style="text-align:center;">
+                    <h2 style="margin-top:0;">Vocabulary Study</h2>
+                    <p style="color:var(--text-muted);">Card ${currentFlashcardIndex + 1} of ${vocab.length} (Click card to flip)</p>
+                    
+                    <div class="flashcard-scene" onclick="flipCard(this)">
+                        <div class="flashcard">
+                            <div class="flashcard-face flashcard-front">
+                                ${currentCard.word}
+                            </div>
+                            <div class="flashcard-face flashcard-back">
+                                <div style="font-size: 4rem;">${currentCard.icon}</div>
+                                <div>${currentCard.chinese}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <button class="action-btn" style="width:48%;" onclick="navigateFlashcard(-1)">Previous</button>
+                        <button class="action-btn" style="width:48%;" onclick="navigateFlashcard(1)">Next</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function flipCard(sceneElement) {
+            const card = sceneElement.querySelector('.flashcard');
+            card.classList.toggle('is-flipped');
+        }
+
+        function navigateFlashcard(direction) {
+            const vocab = currentLevel.vocabulary;
+            currentFlashcardIndex += direction;
+            if (currentFlashcardIndex < 0) currentFlashcardIndex = vocab.length - 1;
+            if (currentFlashcardIndex >= vocab.length) currentFlashcardIndex = 0;
+            renderFlashcardUI();
+        }
+
+        // --- ACTIVITY 4: UNSCRAMBLE VOCAB ---
+        function startVocabUnscramble() {
+            currentVocabUnscrambleIndex = 0;
+            renderVocabUnscramble();
+        }
+
+        function scrambleString(str) {
+            let arr = str.split('');
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            let scrambled = arr.join('');
+            if (scrambled === str && str.length > 3) return scrambleString(str);
+            return scrambled;
+        }
+
+        function renderVocabUnscramble() {
+            const wordsList = currentLevel.unscrambleWords;
+            const originalWord = wordsList[currentVocabUnscrambleIndex];
+            const scrambledWord = scrambleString(originalWord);
+            
+            appContainer.innerHTML = `
+                <button class="action-btn" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop" style="text-align:center;">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); margin-bottom:1rem;">
+                        <span>Word ${currentVocabUnscrambleIndex + 1} of ${wordsList.length}</span>
+                    </div>
+                    <h2 style="margin-top:0;">Unscramble the Word</h2>
+                    
+                    <div style="font-size: 3rem; font-weight: bold; letter-spacing: 10px; color: var(--neon-pink); margin: 2rem 0; font-family: 'Orbitron', sans-serif;">
+                        ${scrambledWord.toUpperCase()}
+                    </div>
+                    
+                    <input type="text" id="unscramble-input" placeholder="Type correct word..." autocomplete="off">
+                    
+                    <button class="action-btn" onclick="checkVocabUnscramble('${originalWord}')">Check Word</button>
+                </div>
+            `;
+        }
+
+        function checkVocabUnscramble(correctWord) {
+            const inputEl = document.getElementById('unscramble-input');
+            const userWord = inputEl.value.trim().toLowerCase();
+            
+            if (userWord === correctWord.toLowerCase()) {
+                inputEl.style.borderColor = 'var(--neon-green)';
+                inputEl.style.boxShadow = '0 0 15px var(--neon-green)';
+                updateXP(10);
+                setTimeout(() => {
+                    currentVocabUnscrambleIndex++;
+                    if (currentVocabUnscrambleIndex >= currentLevel.unscrambleWords.length) {
+                        alert("Unscramble Challenge Complete! (+50 XP Bonus)");
+                        updateXP(50);
+                        renderMenu();
+                    } else {
+                        renderVocabUnscramble();
+                    }
+                }, 1000);
+            } else {
+                inputEl.style.borderColor = 'var(--neon-red)';
+                inputEl.classList.add('shake');
+                setTimeout(() => inputEl.classList.remove('shake'), 400);
+            }
+        }
+
+        // --- ACTIVITY 5: SENTENCE BUILDER ---
+        function startSentenceUnscramble() {
+            currentSentenceIndex = 0;
+            renderSentenceUnscramble();
+        }
+
+        function renderSentenceUnscramble() {
+            const sentencesList = currentLevel.sentences;
+            const sentence = sentencesList[currentSentenceIndex];
+            let words = sentence.split(' ');
+            
+            let scrambledWords = [...words];
+            for (let i = scrambledWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [scrambledWords[i], scrambledWords[j]] = [scrambledWords[j], scrambledWords[i]];
+            }
+
+            const wordsHTML = scrambledWords.map((w, i) => 
+                `<div class="draggable-word" id="word-${i}" onclick="moveWordOnClick(this)">${w}</div>`
+            ).join('');
+
+            appContainer.innerHTML = `
+                <button class="action-btn" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); margin-bottom:1rem;">
+                        <span>Sentence ${currentSentenceIndex + 1} of ${sentencesList.length}</span>
+                    </div>
+                    <h2 style="margin-top:0;">Build the Sentence</h2>
+                    <p style="color:var(--text-muted);">Click words to move them in order.</p>
+                    
+                    <div id="sentence-answer-zone" class="sentence-dropzone">
+                        <!-- Dropped words appear here -->
+                    </div>
+                    
+                    <div id="sentence-word-bank" class="word-bank">
+                        ${wordsHTML}
+                    </div>
+                    
+                    <button class="action-btn" onclick="checkSentenceUnscramble('${sentence.replace(/'/g, "\\'")}')">Check Sentence</button>
+                </div>
+            `;
+        }
+
+        function moveWordOnClick(element) {
+            const answerZone = document.getElementById('sentence-answer-zone');
+            const wordBank = document.getElementById('sentence-word-bank');
+            
+            if (element.parentNode.id === 'sentence-word-bank') {
+                answerZone.appendChild(element);
+            } else {
+                wordBank.appendChild(element);
+            }
+        }
+
+        function checkSentenceUnscramble(correctSentence) {
+            const answerZone = document.getElementById('sentence-answer-zone');
+            const currentWords = Array.from(answerZone.children).map(el => el.innerText);
+            const userSentence = currentWords.join(' ');
+            
+            if (userSentence === correctSentence) {
+                answerZone.style.borderColor = 'var(--neon-green)';
+                answerZone.style.boxShadow = '0 0 15px var(--neon-green) inset';
+                updateXP(20);
+                setTimeout(() => {
+                    currentSentenceIndex++;
+                    if (currentSentenceIndex >= currentLevel.sentences.length) {
+                        alert("Sentence Builder Complete! (+50 XP Bonus)");
+                        updateXP(50);
+                        renderMenu();
+                    } else {
+                        renderSentenceUnscramble();
+                    }
+                }, 1500);
+            } else {
+                answerZone.style.borderColor = 'var(--neon-red)';
+                answerZone.classList.add('shake');
+                setTimeout(() => answerZone.classList.remove('shake'), 400);
+            }
+        }
+
+        // --- ACTIVITY 6: MEME CHALLENGE ---
+        let memeChallengeIndex = 0;
+        let activeMemes = [];
+
+        function startMemeChallenge() {
+            memeChallengeIndex = 0;
+            // Shuffle memes for a new game
+            activeMemes = [...memesDB].sort(() => 0.5 - Math.random());
+            renderMemeChallenge();
+        }
+
+        function renderMemeChallenge() {
+            if (memeChallengeIndex >= activeMemes.length) {
+                alert("Meme Challenge Complete! You survived the Brain Rot.");
+                return renderMenu();
+            }
+
+            const currentMeme = activeMemes[memeChallengeIndex];
+            
+            // Generate 6 options (1 correct, 5 random wrong)
+            let options = [currentMeme.name];
+            let pool = memesDB.map(m => m.name).filter(n => n !== currentMeme.name);
+            pool.sort(() => 0.5 - Math.random());
+            options.push(...pool.slice(0, 5));
+            options.sort(() => 0.5 - Math.random()); // Shuffle final 6
+
+            appContainer.innerHTML = `
+                <button class="action-btn" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop" style="padding-bottom: 1rem; text-align: center;">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); margin-bottom:1rem;">
+                        <span>Meme Guess ${memeChallengeIndex + 1} of ${activeMemes.length}</span>
+                    </div>
+
+                    <div style="background: rgba(0, 243, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--neon-blue); text-align: left;">
+                        <strong style="color: var(--neon-blue); font-family: 'Orbitron', sans-serif;">Definition:</strong> ${currentMeme.hint}
+                    </div>
+
+                    <div id="meme-feedback-zone" style="min-height: 250px; display: flex; align-items: center; justify-content: center;">
+                        <img src="${currentMeme.img}" alt="Meme Image" style="width: 100%; max-width: 400px; border: 4px solid var(--neon-pink); border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 0 20px rgba(255,0,234,0.3);">
+                    </div>
+
+                    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+                        ${options.map(opt => `
+                            <button class="action-btn" style="margin-top: 0; padding: 1rem 0.5rem;" onclick="checkMemeGuess(this, '${opt}', '${currentMeme.name}')">${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkMemeGuess(btn, selected, correct) {
+            const allButtons = btn.parentElement.querySelectorAll('button');
+            allButtons.forEach(b => b.style.pointerEvents = 'none');
+
+            if (selected === correct) {
+                btn.classList.add('btn-correct');
+                updateXP(20);
+                setTimeout(() => {
+                    memeChallengeIndex++;
+                    renderMemeChallenge();
+                }, 1000);
+            } else {
+                const feedbackZone = document.getElementById('meme-feedback-zone');
+                
+                // Show the requested error message
+                feedbackZone.innerHTML = `<span style="display: block; color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red); font-size: 2rem; font-weight: bold; margin: 2rem 0; text-transform: uppercase; animation: shake 0.4s ease-in-out; font-family: 'Orbitron', sans-serif;">67 67 67.... You are WRONG !!!</span>`;
+                
+                setTimeout(() => {
+                    renderMemeChallenge(); 
+                }, 2000);
+            }
+        }
+
+        // Boot up
+        init();
+    </script>
+</body>
+</html>
